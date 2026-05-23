@@ -1,160 +1,252 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 <title>Happy Birthday 💙</title>
 
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
 body{
-  margin:0;
-  overflow:hidden;
-  background:black;
-  font-family:sans-serif;
+overflow:hidden;
+background:black;
+font-family:Arial, sans-serif;
+height:100vh;
+touch-action:none;
 }
 
 canvas{
-  display:block;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:1;
+}
+
+#world{
+position:fixed;
+width:100%;
+height:100%;
+perspective:1200px;
+overflow:hidden;
+z-index:2;
+}
+
+.galaxy{
+position:absolute;
+top:50%;
+left:50%;
+transform-style:preserve-3d;
+}
+
+.photo{
+position:absolute;
+width:90px;
+height:130px;
+border-radius:16px;
+overflow:hidden;
+box-shadow:
+0 0 20px rgba(255,255,255,0.7),
+0 0 40px rgba(255,255,255,0.3);
+transition:0.3s;
+}
+
+.photo img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.center{
+position:absolute;
+width:140px;
+height:140px;
+border-radius:50%;
+background:white;
+box-shadow:
+0 0 40px white,
+0 0 100px white;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+}
+
+.ring{
+position:absolute;
+width:260px;
+height:260px;
+border:2px solid rgba(255,255,255,0.5);
+border-radius:50%;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
 }
 
 .text{
-  position:absolute;
-  bottom:40px;
-  width:100%;
-  text-align:center;
-  color:white;
-  z-index:10;
+position:fixed;
+bottom:70px;
+width:100%;
+text-align:center;
+color:white;
+z-index:10;
 }
 
-h1{
-  font-size:40px;
-  margin:0;
-  text-shadow:0 0 20px white;
+.text h1{
+font-size:55px;
+text-shadow:0 0 25px white;
 }
 
-p{
-  font-size:18px;
+.text p{
+margin-top:10px;
+font-size:22px;
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="text">
-  <h1>Happy Birthday 💙</h1>
-  <p>buat bocillkuu tersayang ✨</p>
+<canvas id="stars"></canvas>
+
+<div id="world">
+
+<div class="galaxy" id="galaxy">
+
+<div class="center"></div>
+<div class="ring"></div>
+
 </div>
 
-<script type="module">
+</div>
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152/build/three.module.js';
+<div class="text">
+<h1>Happy Birthday 💙</h1>
+<p>buat bocillkuu tersayang ✨</p>
+</div>
 
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth/window.innerHeight,
-  0.1,
-  1000
-);
-
-const renderer = new THREE.WebGLRenderer({antialias:true});
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-document.body.appendChild(renderer.domElement);
-
-camera.position.z = 12;
-
-const starsGeometry = new THREE.BufferGeometry();
-
-const starsCount = 5000;
-
-const posArray = new Float32Array(starsCount * 3);
-
-for(let i=0; i<starsCount*3; i++){
-  posArray[i] = (Math.random() - 0.5) * 200;
-}
-
-starsGeometry.setAttribute(
-  'position',
-  new THREE.BufferAttribute(posArray,3)
-);
-
-const starsMaterial = new THREE.PointsMaterial({
-  size:0.2,
-  color:"white"
-});
-
-const starsMesh = new THREE.Points(
-  starsGeometry,
-  starsMaterial
-);
-
-scene.add(starsMesh);
-
-const loader = new THREE.TextureLoader();
+<script>
+const galaxy = document.getElementById("galaxy");
 
 const photos = [
- 'IMG-20260323-WA0066.jpg',
- 'IMG-20260323-WA0068.jpg',
- 'IMG-20260323-WA0073.jpg',
- 'IMG-20260323-WA0105.jpg',
- 'IMG-20260323-WA0107.jpg',
- 'IMG-20260323-WA0110.jpg'
+"IMG-20260323-WA0066.jpg",
+"IMG-20260323-WA0068.jpg",
+"IMG-20260323-WA0073.jpg",
+"IMG-20260323-WA0105.jpg",
+"IMG-20260323-WA0107.jpg",
+"IMG-20260323-WA0110.jpg",
+"IMG-20260323-WA0117.jpg",
+"IMG-20260323-WA0120.jpg",
+"IMG-20260323-WA0121.jpg"
 ];
 
-const group = new THREE.Group();
+let total = 250;
 
-photos.forEach((img,index)=>{
+for(let i=0;i<total;i++){
 
-  const texture = loader.load(img);
+let div = document.createElement("div");
+div.className="photo";
 
-  const geometry = new THREE.PlaneGeometry(3,4);
+let img = document.createElement("img");
 
-  const material = new THREE.MeshBasicMaterial({
-    map:texture
-  });
+img.src = photos[Math.floor(Math.random()*photos.length)];
 
-  const photo = new THREE.Mesh(geometry,material);
+div.appendChild(img);
 
-  const angle = (index/photos.length) * Math.PI * 2;
+let angle = i * 15;
+let radius = 300 + (i*8);
+let z = (i-120)*18;
 
-  photo.position.x = Math.cos(angle)*6;
-  photo.position.z = Math.sin(angle)*6;
+let x = Math.cos(angle*Math.PI/180)*radius;
+let y = Math.sin(angle*Math.PI/180)*radius*0.35;
 
-  photo.lookAt(0,0,0);
+div.style.transform =
+`translate3d(${x}px,${y}px,${z}px)
+rotateY(${angle}deg)`;
 
-  group.add(photo);
+galaxy.appendChild(div);
+}
 
-});
-
-scene.add(group);
+let zoom = 0;
 
 function animate(){
 
-  requestAnimationFrame(animate);
+zoom += 2;
 
-  group.rotation.y += 0.003;
+galaxy.style.transform =
+`translate3d(-50%,-50%,${zoom}px)
+rotateY(${zoom*0.03}deg)`;
 
-  starsMesh.rotation.y += 0.0005;
-
-  renderer.render(scene,camera);
+requestAnimationFrame(animate);
 
 }
 
 animate();
 
-window.addEventListener('resize',()=>{
 
-  camera.aspect = window.innerWidth/window.innerHeight;
 
-  camera.updateProjectionMatrix();
 
-  renderer.setSize(window.innerWidth,window.innerHeight);
+
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let stars=[];
+
+for(let i=0;i<700;i++){
+
+stars.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2
+});
+
+}
+
+function drawStars(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let g = ctx.createRadialGradient(
+canvas.width/2,
+canvas.height/2,
+100,
+canvas.width/2,
+canvas.height/2,
+700
+);
+
+g.addColorStop(0,"rgba(255,255,100,0.6)");
+g.addColorStop(0.3,"rgba(0,255,100,0.4)");
+g.addColorStop(0.6,"rgba(255,255,255,0)");
+g.addColorStop(1,"black");
+
+ctx.fillStyle=g;
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="white";
+
+stars.forEach(s=>{
+
+ctx.beginPath();
+ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+ctx.fill();
 
 });
 
+requestAnimationFrame(drawStars);
+
+}
+
+drawStars();
 </script>
 
 </body>
