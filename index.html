@@ -1,140 +1,185 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>Happy Birthday 💙</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Birthday</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
 
 body{
+margin:0;
 overflow:hidden;
 background:black;
-font-family:Arial, sans-serif;
-height:100vh;
-touch-action:none;
+font-family:sans-serif;
 }
 
 canvas{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:1;
-}
-
-#world{
-position:fixed;
-width:100%;
-height:100%;
-perspective:1200px;
-overflow:hidden;
-z-index:2;
-}
-
-.galaxy{
-position:absolute;
-top:50%;
-left:50%;
-transform-style:preserve-3d;
-}
-
-.photo{
-position:absolute;
-width:90px;
-height:130px;
-border-radius:16px;
-overflow:hidden;
-box-shadow:
-0 0 20px rgba(255,255,255,0.7),
-0 0 40px rgba(255,255,255,0.3);
-transition:0.3s;
-}
-
-.photo img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-.center{
-position:absolute;
-width:140px;
-height:140px;
-border-radius:50%;
-background:white;
-box-shadow:
-0 0 40px white,
-0 0 100px white;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-}
-
-.ring{
-position:absolute;
-width:260px;
-height:260px;
-border:2px solid rgba(255,255,255,0.5);
-border-radius:50%;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
+display:block;
 }
 
 .text{
-position:fixed;
-bottom:70px;
+position:absolute;
+bottom:40px;
 width:100%;
 text-align:center;
 color:white;
 z-index:10;
+pointer-events:none;
 }
 
 .text h1{
-font-size:55px;
-text-shadow:0 0 25px white;
+font-size:50px;
+margin:0;
+text-shadow:0 0 20px white;
 }
 
 .text p{
+font-size:20px;
 margin-top:10px;
-font-size:22px;
 }
 
 </style>
+
 </head>
 
 <body>
-
-<canvas id="stars"></canvas>
-
-<div id="world">
-
-<div class="galaxy" id="galaxy">
-
-<div class="center"></div>
-<div class="ring"></div>
-
-</div>
-
-</div>
 
 <div class="text">
 <h1>Happy Birthday 💙</h1>
 <p>buat bocillkuu tersayang ✨</p>
 </div>
 
-<script>
-const galaxy = document.getElementById("galaxy");
+<script type="module">
 
-const photos = [
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152/build/three.module.js';
+
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.152/examples/jsm/controls/OrbitControls.js';
+
+const scene = new THREE.Scene();
+
+scene.fog = new THREE.FogExp2(0x000000,0.002);
+
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+2000
+);
+
+camera.position.set(0,20,80);
+
+const renderer = new THREE.WebGLRenderer({
+antialias:true
+});
+
+renderer.setSize(window.innerWidth,window.innerHeight);
+
+renderer.setPixelRatio(window.devicePixelRatio);
+
+document.body.appendChild(renderer.domElement);
+
+/* CONTROL */
+
+const controls = new OrbitControls(
+camera,
+renderer.domElement
+);
+
+controls.enableDamping = true;
+
+controls.dampingFactor = 0.05;
+
+controls.enablePan = true;
+
+controls.minDistance = 20;
+
+controls.maxDistance = 200;
+
+/* LIGHT */
+
+const light = new THREE.PointLight(
+0xffffff,
+3
+);
+
+light.position.set(0,0,0);
+
+scene.add(light);
+
+/* PLANET */
+
+const planet = new THREE.Mesh(
+
+new THREE.SphereGeometry(10,64,64),
+
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+emissive:0xffffff,
+emissiveIntensity:0.4
+})
+
+);
+
+scene.add(planet);
+
+/* RING */
+
+const ring = new THREE.Mesh(
+
+new THREE.TorusGeometry(16,0.15,16,100),
+
+new THREE.MeshBasicMaterial({
+color:0xffffff
+})
+
+);
+
+ring.rotation.x = Math.PI/2;
+
+scene.add(ring);
+
+/* STARS */
+
+const starsGeometry = new THREE.BufferGeometry();
+
+const starsCount = 15000;
+
+const starsPos = [];
+
+for(let i=0;i<starsCount;i++){
+
+starsPos.push(
+(Math.random()-0.5)*2000,
+(Math.random()-0.5)*2000,
+(Math.random()-0.5)*2000
+);
+
+}
+
+starsGeometry.setAttribute(
+'position',
+new THREE.Float32BufferAttribute(starsPos,3)
+);
+
+const starsMaterial = new THREE.PointsMaterial({
+color:0xffffff,
+size:0.7
+});
+
+const stars = new THREE.Points(
+starsGeometry,
+starsMaterial
+);
+
+scene.add(stars);
+
+/* FOTO */
+
+const loader = new THREE.TextureLoader();
+
+const images = [
+
 "IMG-20260323-WA0066.jpg",
 "IMG-20260323-WA0068.jpg",
 "IMG-20260323-WA0073.jpg",
@@ -142,111 +187,118 @@ const photos = [
 "IMG-20260323-WA0107.jpg",
 "IMG-20260323-WA0110.jpg",
 "IMG-20260323-WA0117.jpg",
-"IMG-20260323-WA0120.jpg",
-"IMG-20260323-WA0121.jpg"
+"IMG-20260323-WA0120.jpg"
+
 ];
 
-let total = 250;
+const photos = [];
 
-for(let i=0;i<total;i++){
+for(let i=0;i<180;i++){
 
-let div = document.createElement("div");
-div.className="photo";
+const img = images[
+i % images.length
+];
 
-let img = document.createElement("img");
+const texture = loader.load(img);
 
-img.src = photos[Math.floor(Math.random()*photos.length)];
+const geometry =
+new THREE.PlaneGeometry(7,10);
 
-div.appendChild(img);
+const material =
+new THREE.MeshBasicMaterial({
+map:texture,
+side:THREE.DoubleSide
+});
 
-let angle = i * 15;
-let radius = 300 + (i*8);
-let z = (i-120)*18;
+const photo =
+new THREE.Mesh(
+geometry,
+material
+);
 
-let x = Math.cos(angle*Math.PI/180)*radius;
-let y = Math.sin(angle*Math.PI/180)*radius*0.35;
+/* spiral galaxy */
 
-div.style.transform =
-`translate3d(${x}px,${y}px,${z}px)
-rotateY(${angle}deg)`;
+const angle = i * 0.35;
 
-galaxy.appendChild(div);
+const radius = 20 + i*0.9;
+
+photo.position.x =
+Math.cos(angle)*radius;
+
+photo.position.z =
+Math.sin(angle)*radius;
+
+photo.position.y =
+(Math.random()-0.5)*20;
+
+/* hadap tengah */
+
+photo.lookAt(0,0,0);
+
+scene.add(photo);
+
+photos.push(photo);
+
 }
 
-let zoom = 0;
+/* GALAXY COLOR */
+
+const nebulaGeometry =
+new THREE.SphereGeometry(300,64,64);
+
+const nebulaMaterial =
+new THREE.MeshBasicMaterial({
+color:0x44ff88,
+transparent:true,
+opacity:0.05,
+side:THREE.BackSide
+});
+
+const nebula =
+new THREE.Mesh(
+nebulaGeometry,
+nebulaMaterial
+);
+
+scene.add(nebula);
+
+/* ANIMATION */
 
 function animate(){
 
-zoom += 2;
-
-galaxy.style.transform =
-`translate3d(-50%,-50%,${zoom}px)
-rotateY(${zoom*0.03}deg)`;
-
 requestAnimationFrame(animate);
+
+stars.rotation.y += 0.0003;
+
+ring.rotation.z += 0.002;
+
+controls.update();
+
+renderer.render(scene,camera);
 
 }
 
 animate();
 
+/* RESPONSIVE */
 
+window.addEventListener(
+'resize',
+()=>{
 
+camera.aspect =
+window.innerWidth/window.innerHeight;
 
+camera.updateProjectionMatrix();
 
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
-
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-
-let stars=[];
-
-for(let i=0;i<700;i++){
-
-stars.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*2
-});
-
-}
-
-function drawStars(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-let g = ctx.createRadialGradient(
-canvas.width/2,
-canvas.height/2,
-100,
-canvas.width/2,
-canvas.height/2,
-700
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
 );
 
-g.addColorStop(0,"rgba(255,255,100,0.6)");
-g.addColorStop(0.3,"rgba(0,255,100,0.4)");
-g.addColorStop(0.6,"rgba(255,255,255,0)");
-g.addColorStop(1,"black");
-
-ctx.fillStyle=g;
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="white";
-
-stars.forEach(s=>{
-
-ctx.beginPath();
-ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-ctx.fill();
-
-});
-
-requestAnimationFrame(drawStars);
-
 }
+);
 
-drawStars();
 </script>
 
 </body>
